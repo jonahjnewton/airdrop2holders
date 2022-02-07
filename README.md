@@ -20,6 +20,8 @@ sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 cargo install metaboss
 ```
 ## Usage
+**Ensure your Solana CLI config file is setup accordingly to the correct [sending account keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
+
 ```
 python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] candymachineid tokenamount tokenaddress
 ```
