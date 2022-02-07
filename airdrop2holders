@@ -1,13 +1,12 @@
 import subprocess
 import json
 import sys
-import getopt
 import argparse
 import os
 
 def main(argv):
     parser = argparse.ArgumentParser(description="Airdrop a specified token to current holders of an NFT collection.")
-    parser.add_argument('candymachineid', help="The Candy Machine ID of the collection, the holders of which you want to airdrop to.")
+    parser.add_argument('candymachineid', help="The Candy Machine ID of the collection, the holders of which you want to airdrop to. If using a list instead, enter 'none'")
     parser.add_argument('tokenamount', help="The number of tokens you want to airdrop to each holder.", type=int)
     parser.add_argument('tokenaddress', help="The token address of the token you wish to airdrop.")
     parser.add_argument('-s', '--startatholder', help="The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).", type=int, default=0)
@@ -62,7 +61,7 @@ def main(argv):
         with open(send_to, 'r+') as f:
             holders = json.load(f)
             if len(holders) == 0:
-                sys.exit('No holders found for candy machine with id ' + candy_machine_id)
+                sys.exit('No holders found')
             else:
                 blacklist = ""
                 while True:
