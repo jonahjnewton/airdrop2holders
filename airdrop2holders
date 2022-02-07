@@ -12,6 +12,7 @@ def main(argv):
     parser.add_argument('tokenaddress', help="The token address of the token you wish to airdrop.")
     parser.add_argument('-s', '--startatholder', help="The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).", type=int, default=0)
     parser.add_argument('--v2', help="Use if your collection uses Candy Machine V2.", action="store_true")
+    parser.add_argument('-l', '--list', help="Name of JSON file containg a list of wallet addresses - overrides NFT holders lookup", type=str)
     parsed_args = parser.parse_args()
 
     candy_machine_id = parsed_args.candymachineid
@@ -21,37 +22,44 @@ def main(argv):
     if parsed_args.startatholder > 0:
         start_at_holder = (parsed_args.startatholder-1)
     
-    if os.path.isfile(candy_machine_id+"_holders.json"):
-        while True:
-            try:
-                refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
-                if refresh_holders == "Y":
-                    os.remove(candy_machine_id+"_holders.json")
-                    if parsed_args.v2:
-                        get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                        get_holders.wait()
-                    else:
-                        get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-                        get_holders.wait()
-                    break
-                elif refresh_holders == "N":
-                    break
-                else:
-                    raise ValueError
+    send_to = None
 
-            except ValueError:
-                print("Invalid input, please input Y/N")
-                continue
-    else:
-        if parsed_args.v2:
-            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-            get_holders.wait()
+    if not parsed_args.list:
+        if os.path.isfile(candy_machine_id+"_holders.json"):
+            while True:
+                try:
+                    refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
+                    if refresh_holders == "Y":
+                        os.remove(candy_machine_id+"_holders.json")
+                        if parsed_args.v2:
+                            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                            get_holders.wait()
+                        else:
+                            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+                            get_holders.wait()
+                        break
+                    elif refresh_holders == "N":
+                        break
+                    else:
+                        raise ValueError
+
+                except ValueError:
+                    print("Invalid input, please input Y/N")
+                    continue
+            send_to = candy_machine_id+"_holders.json"
         else:
-            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-            get_holders.wait()
+            if parsed_args.v2:
+                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                get_holders.wait()
+            else:
+                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+                get_holders.wait()
+            send_to = candy_machine_id+"_holders.json"
+    else:
+        send_to = parsed_args.list
     
     try:
-        with open(candy_machine_id+"_holders.json", 'r+') as f:
+        with open(send_to, 'r+') as f:
             holders = json.load(f)
             if len(holders) == 0:
                 sys.exit('No holders found for candy machine with id ' + candy_machine_id)
@@ -73,7 +81,10 @@ def main(argv):
                                     print("Sending to holder " + str(holder_count + 1))
                                     transaction = ""
                                     try:
-                                        send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder['owner_wallet']], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                        if not parsed_args.list:
+                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder['owner_wallet']], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                        else:
+                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
                                         sender = ""
                                         while True:
                                             output = send_token.stdout.readline()
