@@ -7,10 +7,10 @@ import os
 
 def main(argv):
     parser = argparse.ArgumentParser(description="Airdrop a specified token to current holders of an NFT collection.")
-    parser.add_argument('candymachineid', help="The Candy Machine ID for a collection, the holders of which you want to airdrop to.")
+    parser.add_argument('candymachineid', help="The Candy Machine ID of the collection, the holders of which you want to airdrop to.")
     parser.add_argument('tokenamount', help="The number of tokens you want to airdrop to each holder.", type=int)
     parser.add_argument('tokenaddress', help="The token address of the token you wish to airdrop.")
-    parser.add_argument('-s', '--startatholder', help="The holder that you want to airdrop to in the list (useful if an airdrop fails and needs to be restarted).", type=int, default=0)
+    parser.add_argument('-s', '--startatholder', help="The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).", type=int, default=0)
     parser.add_argument('--v2', help="Use if your collection uses Candy Machine V2.", action="store_true")
     parsed_args = parser.parse_args()
 
