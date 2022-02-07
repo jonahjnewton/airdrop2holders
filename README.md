@@ -6,7 +6,7 @@ Utility script to airdrop a specified SPL Token to holders of a Candy Machine co
 ## Features
 - Automatically retrieve all **current** holders of NFTs from a Candy Machine V1 **or** V2 collection.
 - Reduce unnecessary gas fees by skipping transfers to the same account.
-- Specified starting holder in case airdrop fails midway.
+- Specified starting holder in case airdrop fails midway or sender account runs out of funds.
 - Automatically retry failed transactions (no more monitoring airdrops for errors).
 
 ## Requirements
