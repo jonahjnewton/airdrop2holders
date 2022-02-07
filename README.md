@@ -38,6 +38,8 @@ python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] candymachineid tokenamoun
   -s STARTATHOLDER, --startatholder STARTATHOLDER
                         The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).
   --v2                  Use if your collection uses Candy Machine V2.
+  -l LIST, --list LIST  Path to JSON file containing a list of wallet addresses
+                        - overrides NFT holders lookup
 ```
 
 **If this project helped you at all, please consider donating to support the development and maintenance of future utilities!**
