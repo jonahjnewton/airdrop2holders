@@ -1,5 +1,6 @@
 # airdrop2holders
 Utility script to airdrop a specified SPL Token to holders of a Candy Machine collection.
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=KVTJPB8Z4DA8G)
 
 ## Features
 - Automatically retrieve all **current** holders of NFTs from a Candy Machine V1 **or** V2 collection.
@@ -37,3 +38,6 @@ python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] candymachineid tokenamoun
                         The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).
   --v2                  Use if your collection uses Candy Machine V2.
 ```
+
+**If this project helped you at all, please consider donating to support the development and maintenance of future utilities!**
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=KVTJPB8Z4DA8G)
