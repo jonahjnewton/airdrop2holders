@@ -1,0 +1,155 @@
+import subprocess
+import json
+import sys
+import getopt
+import argparse
+import os
+
+def main(argv):
+    parser = argparse.ArgumentParser(description="Airdrop a specified token to current holders of an NFT collection.")
+    parser.add_argument('candymachineid', help="The Candy Machine ID for a collection, the holders of which you want to airdrop to.")
+    parser.add_argument('tokenamount', help="The number of tokens you want to airdrop to each holder.", type=int)
+    parser.add_argument('tokenaddress', help="The token address of the token you wish to airdrop.")
+    parser.add_argument('-s', '--startatholder', help="The holder that you want to airdrop to in the list (useful if an airdrop fails and needs to be restarted).", type=int, default=0)
+    parser.add_argument('--v2', help="Use if your collection uses Candy Machine V2.", action="store_true")
+    parsed_args = parser.parse_args()
+
+    candy_machine_id = parsed_args.candymachineid
+    token_amount = parsed_args.tokenamount
+    token_address = parsed_args.tokenaddress
+    start_at_holder = 0
+    if parsed_args.startatholder > 0:
+        start_at_holder = (parsed_args.startatholder-1)
+    
+    if os.path.isfile(candy_machine_id+"_holders.json"):
+        while True:
+            try:
+                refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
+                if refresh_holders == "Y":
+                    os.remove(candy_machine_id+"_holders.json")
+                    if parsed_args.v2:
+                        get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                        get_holders.wait()
+                    else:
+                        get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+                        get_holders.wait()
+                    break
+                elif refresh_holders == "N":
+                    break
+                else:
+                    raise ValueError
+
+            except ValueError:
+                print("Invalid input, please input Y/N")
+                continue
+    else:
+        if parsed_args.v2:
+            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+            get_holders.wait()
+        else:
+            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+            get_holders.wait()
+    
+    try:
+        with open(candy_machine_id+"_holders.json", 'r+') as f:
+            holders = json.load(f)
+            if len(holders) == 0:
+                sys.exit('No holders found for candy machine with id ' + candy_machine_id)
+            else:
+                blacklist = ""
+                while True:
+                    if(start_at_holder < 0 or (start_at_holder+1) > len(holders)):
+                        sys.exit("Starting holder must be between 1 and the maximum number of holders")
+                    try:
+                        send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens. Do you want to continue? Y/N\n")
+                        
+                        if send_confirm == "Y":
+                            holder_count = start_at_holder
+                            
+                            for holder in holders[start_at_holder:]:
+                                sent = False
+                                attempt_count = 0
+                                while sent == False:
+                                    print("Sending to holder " + str(holder_count + 1))
+                                    transaction = ""
+                                    try:
+                                        send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder['owner_wallet']], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                        sender = ""
+                                        while True:
+                                            output = send_token.stdout.readline()
+                                            if send_token.poll() is not None and output == b'':
+                                                break
+                                            if output:
+                                                print(str(output.strip())[2:len(str(output.strip()))-1])
+                                                if "Sender: " in str(output.strip()):
+                                                    sender = str(output.strip()).split("Sender: ",1)[1][0:-1]
+                                                elif "Recipient associated token account: " in str(output.strip()) and sender != "":
+                                                    if sender in str(output.strip()):
+                                                        send_token.terminate()
+                                                        raise ValueError("Sender is recipient, skipping.")
+                                                elif "Error" in str(output.strip()):
+                                                    raise ValueError(str(output.strip())[2:len(str(output.strip()))-1])
+                                                elif "Recipient: " in str(output.strip()):
+                                                    if str(output.strip()).split("Recipient: ",1)[1][0:-1] in blacklist:
+                                                        send_token.terminate()
+                                                        raise ValueError("Recipient in blacklist, skipping.")
+                                                transaction += str(output.strip())[2:-1]
+
+                                        if "Signature" in transaction:
+                                            sent = True
+                                            holder_count = holder_count + 1
+                                        elif attempt_count == 2:
+                                            while True:
+                                                skip = input("Transaction failed after 3 attempts. Would you like to retry, skip this holder, or cancel the airdrop? Retry/Skip/Cancel\n")
+                                                if skip == "Skip":
+                                                    sent = True
+                                                    holder_count = holder_count + 1
+                                                    break
+                                                elif skip == "Cancel":
+                                                    sys.exit("\nAirdrop cancelled at holder " + str(holder_count+1) + ". To retry this airdrop from holder " + str(holder_count+1) + ", rerun the command with the option '-s " + str(holder_count+1) + "' without refreshing the holders cache.\n")
+                                                elif skip == "Retry":
+                                                    attempt_count = 0
+                                                    break
+                                                else:
+                                                    print("Invalid input, please input Skip/Cancel")
+                                                    continue
+
+                                        else:
+                                            print("Send failed. Retrying")
+                                            attempt_count = attempt_count + 1                                        
+                                        
+                                    except ValueError as exc:
+                                        if "insufficient funds" in exc.args[0]:
+                                            sys.exit("\nWallet ran out of funds at holder " + str(holder_count + 1) + ". Fund sender wallet and retry from holder " + str(holder_count + 1) + " by rerunning the command with the option '-s " + str(holder_count + 1) + "' without refreshing the holders cache.\n")
+                                        elif "Account could not be parsed as token account:" in exc.args[0]:
+                                            sys.exit("\nAccount could not be parsed as token account for token " + token_address + "\n")
+                                        elif "Sender is recipient, skipping." in exc.args[0]:
+                                            print("\n" + exc.args[0] + "\n")
+                                            holder_count = holder_count + 1
+                                            sent = True
+                                        elif "blacklist" in exc.args[0]:
+                                            print("\n" + exc.args[0] + "\n")
+                                            holder_count = holder_count + 1
+                                            sent = True
+                                        
+                                        
+
+                                    
+                                          
+                            break
+                        
+                        elif send_confirm == "N":
+                            print("Airdrop cancelled")
+                            break
+                        else:
+                            raise ValueError
+                    except ValueError:
+                        print("Invalid input, please input Y/N")
+                        continue
+
+    except FileNotFoundError:
+        sys.exit('Failed to get holders')
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+
