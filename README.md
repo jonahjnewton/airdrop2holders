@@ -29,7 +29,7 @@ python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] candymachineid tokenamoun
 ```
 ```
   Required arguments:
-  candymachineid        The Candy Machine ID for a collection, the holders of which you want to airdrop to.
+  candymachineid        The Candy Machine ID of the collection, the holders of which you want to airdrop to. If using a list instead, enter 'none'
   tokenamount           The number of tokens you want to airdrop to each holder.
   tokenaddress          The token address of the token you wish to airdrop.
   
