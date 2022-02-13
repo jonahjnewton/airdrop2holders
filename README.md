@@ -25,7 +25,7 @@ cargo install metaboss
 **Ensure your Solana CLI config file is setup accordingly to the correct [sending account keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
 
 ```
-airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] candymachineid tokenamount tokenaddress
+python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] candymachineid tokenamount tokenaddress
 ```
 ```
   Required arguments:
