@@ -81,6 +81,8 @@ def main(argv):
                         send_confirm = None
                         if not parsed_args.force:
                             send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens. Do you want to continue? Y/N\n")
+                        else:
+                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens.\n")
                         
                         if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
                             holder_count = start_at_holder
