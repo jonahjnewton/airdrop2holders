@@ -25,21 +25,20 @@ cargo install metaboss
 **Ensure your Solana CLI config file is setup accordingly to the correct [sending account keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
 
 ```
-python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] candymachineid tokenamount tokenaddress
+python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] candymachineid tokenamount tokenaddress
 ```
 ```
   Required arguments:
-  candymachineid        The Candy Machine ID for a collection, the holders of which you want to airdrop to.
+  candymachineid        The Candy Machine ID of the collection, the holders of which you want to airdrop to. If using a list instead, enter 'none'.
   tokenamount           The number of tokens you want to airdrop to each holder.
   tokenaddress          The token address of the token you wish to airdrop.
   
   Optional arguments:
   -h, --help            Show this help message and exit
-  -s STARTATHOLDER, --startatholder STARTATHOLDER
+  -s, --startatholder STARTATHOLDER
                         The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).
   --v2                  Use if your collection uses Candy Machine V2.
-  -l LIST, --list LIST  Path to JSON file containing a list of wallet addresses
-                        - overrides NFT holders lookup
+  -l, --list LIST       Path to JSON file containing a list of wallet addresses - overrides NFT holders lookup
 ```
 
 **If this project helped you at all, please consider donating to support the development and maintenance of future utilities!**
