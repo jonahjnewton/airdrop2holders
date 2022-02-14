@@ -12,6 +12,7 @@ def main(argv):
     parser.add_argument('-s', '--startatholder', help="The holder number that you want to start the airdrop at (useful if an airdrop fails and must be restarted).", type=int, default=0)
     parser.add_argument('--v2', help="Use if your collection uses Candy Machine V2.", action="store_true")
     parser.add_argument('-l', '--list', help="Path to JSON file containing a list of wallet addresses - overrides NFT holders lookup", type=str)
+    parser.add_argument('-f', '--force', help="Forces script to run without warnings. Will automatically refresh holders if no list is provided and retry failed transactions until they are successful.", action="store_true")
     parsed_args = parser.parse_args()
 
     candy_machine_id = parsed_args.candymachineid
@@ -24,32 +25,41 @@ def main(argv):
     send_to = None
 
     if not parsed_args.list:
-        if os.path.isfile(candy_machine_id+"_holders.json"):
-            while True:
-                try:
-                    refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
-                    if refresh_holders == "Y":
-                        os.remove(candy_machine_id+"_holders.json")
-                        if parsed_args.v2:
-                            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                            get_holders.wait()
+        if not parsed_args.force:
+            if os.path.isfile(candy_machine_id+"_holders.json"):
+                while True:
+                    try:
+                        refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
+                        if refresh_holders == "Y":
+                            os.remove(candy_machine_id+"_holders.json")
+                            if parsed_args.v2:
+                                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                                get_holders.wait()
+                            else:
+                                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+                                get_holders.wait()
+                            break
+                        elif refresh_holders == "N":
+                            break
                         else:
-                            get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-                            get_holders.wait()
-                        break
-                    elif refresh_holders == "N":
-                        break
-                    else:
-                        raise ValueError
+                            raise ValueError
 
-                except ValueError:
-                    print("Invalid input, please input Y/N")
-                    continue
-            send_to = candy_machine_id+"_holders.json"
+                    except ValueError:
+                        print("Invalid input, please input Y/N")
+                        continue
+                send_to = candy_machine_id+"_holders.json"
+            else:
+                if parsed_args.v2:
+                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                    get_holders.wait()
+                else:
+                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+                    get_holders.wait()
+                send_to = candy_machine_id+"_holders.json"
         else:
             if parsed_args.v2:
-                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                get_holders.wait()
+                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+                    get_holders.wait()
             else:
                 get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
                 get_holders.wait()
@@ -68,9 +78,11 @@ def main(argv):
                     if(start_at_holder < 0 or (start_at_holder+1) > len(holders)):
                         sys.exit("Starting holder must be between 1 and the maximum number of holders")
                     try:
-                        send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens. Do you want to continue? Y/N\n")
+                        send_confirm = None
+                        if not parsed_args.force:
+                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens. Do you want to continue? Y/N\n")
                         
-                        if send_confirm == "Y":
+                        if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
                             holder_count = start_at_holder
                             
                             for holder in holders[start_at_holder:]:
@@ -108,7 +120,7 @@ def main(argv):
                                         if "Signature" in transaction:
                                             sent = True
                                             holder_count = holder_count + 1
-                                        elif attempt_count == 2:
+                                        elif attempt_count == 2 and not parsed_args.force:
                                             while True:
                                                 skip = input("Transaction failed after 3 attempts. Would you like to retry, skip this holder, or cancel the airdrop? Retry/Skip/Cancel\n")
                                                 if skip == "Skip":
