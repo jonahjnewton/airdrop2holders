@@ -32,12 +32,7 @@ def main(argv):
                         refresh_holders = input("Existing holders cache found for candy machine with id " + candy_machine_id + ", would you like to refresh? Y/N\n")
                         if refresh_holders == "Y":
                             os.remove(candy_machine_id+"_holders.json")
-                            if parsed_args.v2:
-                                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                                get_holders.wait()
-                            else:
-                                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-                                get_holders.wait()
+                            get_holders(candy_machine_id, parsed_args.v2)
                             break
                         elif refresh_holders == "N":
                             break
@@ -47,23 +42,12 @@ def main(argv):
                     except ValueError:
                         print("Invalid input, please input Y/N")
                         continue
-                send_to = candy_machine_id+"_holders.json"
             else:
-                if parsed_args.v2:
-                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                    get_holders.wait()
-                else:
-                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-                    get_holders.wait()
-                send_to = candy_machine_id+"_holders.json"
+                get_holders(candy_machine_id, parsed_args.v2)
         else:
-            if parsed_args.v2:
-                    get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
-                    get_holders.wait()
-            else:
-                get_holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
-                get_holders.wait()
-            send_to = candy_machine_id+"_holders.json"
+            get_holders(candy_machine_id, parsed_args.v2)
+            
+        send_to = candy_machine_id+"_holders.json"
     else:
         send_to = parsed_args.list
     
@@ -125,6 +109,7 @@ def main(argv):
                                         elif attempt_count == 2 and not parsed_args.force:
                                             while True:
                                                 skip = input("Transaction failed after 3 attempts. Would you like to retry, skip this holder, or cancel the airdrop? Retry/Skip/Cancel\n")
+                                                
                                                 if skip == "Skip":
                                                     sent = True
                                                     holder_count = holder_count + 1
@@ -135,7 +120,7 @@ def main(argv):
                                                     attempt_count = 0
                                                     break
                                                 else:
-                                                    print("Invalid input, please input Skip/Cancel")
+                                                    print("Invalid input, please input Retry/Skip/Cancel")
                                                     continue
 
                                         else:
@@ -154,12 +139,7 @@ def main(argv):
                                         elif "blacklist" in exc.args[0]:
                                             print("\n" + exc.args[0] + "\n")
                                             holder_count = holder_count + 1
-                                            sent = True
-                                        
-                                        
-
-                                    
-                                          
+                                            sent = True            
                             break
                         
                         elif send_confirm == "N":
@@ -167,12 +147,20 @@ def main(argv):
                             break
                         else:
                             raise ValueError
+                            
                     except ValueError:
                         print("Invalid input, please input Y/N")
                         continue
 
     except FileNotFoundError:
         sys.exit('Failed to get holders')
+
+def get_holders(candy_machine_id, v2):
+    if v2:
+        holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id, "--v2"])
+    else:
+        holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--candy-machine-id", candy_machine_id])
+    holders.wait()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
