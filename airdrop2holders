@@ -117,6 +117,8 @@ def main(argv):
                                                 if str(output.strip()).split("Recipient: ",1)[1][0:-1] in blacklist:
                                                     send_token.terminate()
                                                     raise ValueError("Recipient in blacklist, skipping.")
+                                            elif"unable to confirm transaction. This can happen in situations such as transaction expiration and insufficient fee-payer funds" in str(output.strip()):
+                                                raise ValueError("unable to confirm transaction.")
                                             transaction += str(output.strip())[2:-1]
 
                                     if "Signature" in transaction:
@@ -150,6 +152,10 @@ def main(argv):
                                         sys.exit("\nAccount could not be parsed as token account for token " + token_address + "\n")
                                     elif "Sender is recipient, skipping." in exc.args[0]:
                                         print("\n" + exc.args[0] + "\n")
+                                        holder_count = holder_count + 1
+                                        sent = True
+                                    elif "unable to confirm transaction.":
+                                        print("\n" + "Continuing to next transaction." + "\n")
                                         holder_count = holder_count + 1
                                         sent = True
                                     elif "blacklist" in exc.args[0]:
