@@ -21,6 +21,8 @@ def main(argv):
     start_at_holder = 0
     if parsed_args.startatholder > 0:
         start_at_holder = (parsed_args.startatholder-1)
+    elif parsed_args.startatholder <= 0:
+        sys.exit("Starting holder must be between 1 and the maximum number of holders")
     
     send_to = None
 
@@ -55,25 +57,39 @@ def main(argv):
     
     try:
         with open(send_to, 'r+') as f:
-            holders = json.load(f)
-            if len(holders) == 0:
+            holders_original = json.load(f)
+            holders = {}
+
+            if len(holders_original) == 0:
                 sys.exit('No holders found')
+
+            for holder in holders_original:
+                holders[holder['owner_wallet']] = holders.get(holder['owner_wallet'], 0) + 1
+            
             else:
                 blacklist = ""
                 while True:
                     if(start_at_holder < 0 or (start_at_holder+1) > len(holders)):
                         sys.exit("Starting holder must be between 1 and the maximum number of holders")
+                    elif(start_at_holder > 0):
+                        delete = {}
+                        for i, holder in enumerate(holders):
+                            if(i<start_at_holder):
+                                delete[holder] = holders[holder]
+                            else:
+                                break
+                        for holder in delete: del holders[holder]
                     try:
                         send_confirm = None
                         if not parsed_args.force:
-                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens. Do you want to continue? Y/N\n")
+                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens. Do you want to continue? Y/N\n")
                         else:
-                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)-start_at_holder) + " holders, for a total of " + str(token_amount * (len(holders)-start_at_holder)) + " tokens.\n")
+                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
                         
                         if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
                             holder_count = start_at_holder
                             
-                            for holder in holders[start_at_holder:]:
+                            for address in holders:
                                 sent = False
                                 attempt_count = 0
                                 while sent == False:
@@ -81,9 +97,9 @@ def main(argv):
                                     transaction = ""
                                     try:
                                         if not parsed_args.list:
-                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder['owner_wallet']], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount*holders[address]), address], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
                                         else:
-                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount), holder], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount*holders[address]), address], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
                                         sender = ""
                                         while True:
                                             output = send_token.stdout.readline()
