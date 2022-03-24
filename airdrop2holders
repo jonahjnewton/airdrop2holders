@@ -61,112 +61,112 @@ def main(argv):
             if len(holders_original) == 0:
                 sys.exit('No holders found')
 
-            for holder in holders_original:
-                holders[holder['owner_wallet']] = holders.get(holder['owner_wallet'], 0) + 1
-            
+            if(parsed_args.list):
+                for holder in holders_original:
+                    holders[holder] = holders.get(holder, 0) + 1
             else:
-                blacklist = ""
-                while True:
-                    if((start_at_holder+1) < 1 or (start_at_holder+1) > len(holders)):
-                        sys.exit("Starting holder must be between 1 and the maximum number of holders")
-                    elif(start_at_holder > 0):
-                        delete = {}
-                        for i, holder in enumerate(holders):
-                            if(i<start_at_holder):
-                                delete[holder] = holders[holder]
-                            else:
-                                break
-                        for holder in delete: del holders[holder]
-                    try:
-                        send_confirm = None
-                        if not parsed_args.force:
-                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens. Do you want to continue? Y/N\n")
+                for holder in holders_original:
+                    holders[holder['owner_wallet']] = holders.get(holder['owner_wallet'], 0) + 1
+
+            blacklist = ""
+            while True:
+                if((start_at_holder+1) < 1 or (start_at_holder+1) > len(holders)):
+                    sys.exit("Starting holder must be between 1 and the maximum number of holders")
+                elif(start_at_holder > 0):
+                    delete = {}
+                    for i, holder in enumerate(holders):
+                        if(i<start_at_holder):
+                            delete[holder] = holders[holder]
                         else:
-                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
+                            break
+                    for holder in delete: del holders[holder]
+                try:
+                    send_confirm = None
+                    if not parsed_args.force:
+                        send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens. Do you want to continue? Y/N\n")
+                    else:
+                        print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
+                    
+                    if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
+                        holder_count = start_at_holder
                         
-                        if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
-                            holder_count = start_at_holder
-                            
-                            for address in holders:
-                                sent = False
-                                attempt_count = 0
-                                while sent == False:
-                                    print("Sending to holder " + str(holder_count + 1))
-                                    transaction = ""
-                                    try:
-                                        if not parsed_args.list:
-                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount*holders[address]), address], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
-                                        else:
-                                            send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount*holders[address]), address], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
-                                        sender = ""
+                        for address in holders:
+                            sent = False
+                            attempt_count = 0
+                            while sent == False:
+                                print("Sending to holder " + str(holder_count + 1))
+                                transaction = ""
+                                try:
+                                    send_token = subprocess.Popen(["spl-token", "transfer", "--fund-recipient", "--allow-unfunded-recipient", token_address, str(token_amount*holders[address]), address], stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                                    sender = ""
+                                    while True:
+                                        output = send_token.stdout.readline()
+                                        if send_token.poll() is not None and output == b'':
+                                            break
+                                        if output:
+                                            print(str(output.strip())[2:len(str(output.strip()))-1])
+                                            if "Sender: " in str(output.strip()):
+                                                sender = str(output.strip()).split("Sender: ",1)[1][0:-1]
+                                            elif "Recipient associated token account: " in str(output.strip()) and sender != "":
+                                                if sender in str(output.strip()):
+                                                    send_token.terminate()
+                                                    raise ValueError("Sender is recipient, skipping.")
+                                            elif "Error" in str(output.strip()) or "Account could not be parsed" in str(output.strip()):
+                                                raise ValueError(str(output.strip())[2:len(str(output.strip()))-1])
+                                            elif "Recipient: " in str(output.strip()):
+                                                if str(output.strip()).split("Recipient: ",1)[1][0:-1] in blacklist:
+                                                    send_token.terminate()
+                                                    raise ValueError("Recipient in blacklist, skipping.")
+                                            transaction += str(output.strip())[2:-1]
+
+                                    if "Signature" in transaction:
+                                        sent = True
+                                        holder_count = holder_count + 1
+                                    elif attempt_count == 2 and not parsed_args.force:
                                         while True:
-                                            output = send_token.stdout.readline()
-                                            if send_token.poll() is not None and output == b'':
+                                            skip = input("Transaction failed after 3 attempts. Would you like to retry, skip this holder, or cancel the airdrop? Retry/Skip/Cancel\n")
+                                            
+                                            if skip == "Skip":
+                                                sent = True
+                                                holder_count = holder_count + 1
                                                 break
-                                            if output:
-                                                print(str(output.strip())[2:len(str(output.strip()))-1])
-                                                if "Sender: " in str(output.strip()):
-                                                    sender = str(output.strip()).split("Sender: ",1)[1][0:-1]
-                                                elif "Recipient associated token account: " in str(output.strip()) and sender != "":
-                                                    if sender in str(output.strip()):
-                                                        send_token.terminate()
-                                                        raise ValueError("Sender is recipient, skipping.")
-                                                elif "Error" in str(output.strip()) or "Account could not be parsed" in str(output.strip()):
-                                                    raise ValueError(str(output.strip())[2:len(str(output.strip()))-1])
-                                                elif "Recipient: " in str(output.strip()):
-                                                    if str(output.strip()).split("Recipient: ",1)[1][0:-1] in blacklist:
-                                                        send_token.terminate()
-                                                        raise ValueError("Recipient in blacklist, skipping.")
-                                                transaction += str(output.strip())[2:-1]
+                                            elif skip == "Cancel":
+                                                sys.exit("\nAirdrop cancelled at holder " + str(holder_count+1) + ". To retry this airdrop from holder " + str(holder_count+1) + ", rerun the command with the option '-s " + str(holder_count+1) + "' without refreshing the holders cache.\n")
+                                            elif skip == "Retry":
+                                                attempt_count = 0
+                                                break
+                                            else:
+                                                print("Invalid input, please input Retry/Skip/Cancel")
+                                                continue
 
-                                        if "Signature" in transaction:
-                                            sent = True
-                                            holder_count = holder_count + 1
-                                        elif attempt_count == 2 and not parsed_args.force:
-                                            while True:
-                                                skip = input("Transaction failed after 3 attempts. Would you like to retry, skip this holder, or cancel the airdrop? Retry/Skip/Cancel\n")
-                                                
-                                                if skip == "Skip":
-                                                    sent = True
-                                                    holder_count = holder_count + 1
-                                                    break
-                                                elif skip == "Cancel":
-                                                    sys.exit("\nAirdrop cancelled at holder " + str(holder_count+1) + ". To retry this airdrop from holder " + str(holder_count+1) + ", rerun the command with the option '-s " + str(holder_count+1) + "' without refreshing the holders cache.\n")
-                                                elif skip == "Retry":
-                                                    attempt_count = 0
-                                                    break
-                                                else:
-                                                    print("Invalid input, please input Retry/Skip/Cancel")
-                                                    continue
-
-                                        else:
-                                            print("Send failed. Retrying")
-                                            attempt_count = attempt_count + 1                                        
-                                        
-                                    except ValueError as exc:
-                                        if "insufficient funds" in exc.args[0]:
-                                            sys.exit("\nWallet ran out of funds at holder " + str(holder_count + 1) + ". Fund sender wallet and retry from holder " + str(holder_count + 1) + " by rerunning the command with the option '-s " + str(holder_count + 1) + "' without refreshing the holders cache.\n")
-                                        elif "Account could not be parsed as token account:" in exc.args[0]:
-                                            sys.exit("\nAccount could not be parsed as token account for token " + token_address + "\n")
-                                        elif "Sender is recipient, skipping." in exc.args[0]:
-                                            print("\n" + exc.args[0] + "\n")
-                                            holder_count = holder_count + 1
-                                            sent = True
-                                        elif "blacklist" in exc.args[0]:
-                                            print("\n" + exc.args[0] + "\n")
-                                            holder_count = holder_count + 1
-                                            sent = True            
-                            break
+                                    else:
+                                        print("Send failed. Retrying")
+                                        attempt_count = attempt_count + 1                                        
+                                    
+                                except ValueError as exc:
+                                    if "insufficient funds" in exc.args[0]:
+                                        sys.exit("\nWallet ran out of funds at holder " + str(holder_count + 1) + ". Fund sender wallet and retry from holder " + str(holder_count + 1) + " by rerunning the command with the option '-s " + str(holder_count + 1) + "' without refreshing the holders cache.\n")
+                                    elif "Account could not be parsed as token account:" in exc.args[0]:
+                                        sys.exit("\nAccount could not be parsed as token account for token " + token_address + "\n")
+                                    elif "Sender is recipient, skipping." in exc.args[0]:
+                                        print("\n" + exc.args[0] + "\n")
+                                        holder_count = holder_count + 1
+                                        sent = True
+                                    elif "blacklist" in exc.args[0]:
+                                        print("\n" + exc.args[0] + "\n")
+                                        holder_count = holder_count + 1
+                                        sent = True            
+                        break
+                    
+                    elif send_confirm == "N":
+                        print("Airdrop cancelled")
+                        break
+                    else:
+                        raise ValueError
                         
-                        elif send_confirm == "N":
-                            print("Airdrop cancelled")
-                            break
-                        else:
-                            raise ValueError
-                            
-                    except ValueError:
-                        print("Invalid input, please input Y/N")
-                        continue
+                except ValueError:
+                    print("Invalid input, please input Y/N")
+                    continue
 
     except FileNotFoundError:
         sys.exit('Failed to get holders')
