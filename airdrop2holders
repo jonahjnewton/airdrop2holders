@@ -45,6 +45,8 @@ def main(argv):
             else:
                 get_holders(candy_machine_id, parsed_args.v2)
         else:
+            if os.path.isfile(candy_machine_id+"_holders.json"):
+                os.remove(candy_machine_id+"_holders.json")
             get_holders(candy_machine_id, parsed_args.v2)
             
         send_to = candy_machine_id+"_holders.json"
