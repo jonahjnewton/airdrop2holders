@@ -111,7 +111,7 @@ def main(argv):
                                                     if sender in str(output.strip()):
                                                         send_token.terminate()
                                                         raise ValueError("Sender is recipient, skipping.")
-                                                elif "Error" in str(output.strip()):
+                                                elif "Error" in str(output.strip()) or "Account could not be parsed" in str(output.strip()):
                                                     raise ValueError(str(output.strip())[2:len(str(output.strip()))-1])
                                                 elif "Recipient: " in str(output.strip()):
                                                     if str(output.strip()).split("Recipient: ",1)[1][0:-1] in blacklist:
