@@ -1,5 +1,5 @@
 # airdrop2holders
-Utility script for Solana to airdrop a specified SPL Token to holders of a Candy Machine collection.
+Utility script for Solana to efficiently airdrop a specified SPL Token to holders of a Candy Machine collection.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=KVTJPB8Z4DA8G)
 
