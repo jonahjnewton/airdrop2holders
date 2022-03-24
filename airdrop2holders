@@ -21,8 +21,6 @@ def main(argv):
     start_at_holder = 0
     if parsed_args.startatholder > 0:
         start_at_holder = (parsed_args.startatholder-1)
-    elif parsed_args.startatholder <= 0:
-        sys.exit("Starting holder must be between 1 and the maximum number of holders")
     
     send_to = None
 
@@ -69,7 +67,7 @@ def main(argv):
             else:
                 blacklist = ""
                 while True:
-                    if(start_at_holder < 0 or (start_at_holder+1) > len(holders)):
+                    if((start_at_holder+1) < 1 or (start_at_holder+1) > len(holders)):
                         sys.exit("Starting holder must be between 1 and the maximum number of holders")
                     elif(start_at_holder > 0):
                         delete = {}
