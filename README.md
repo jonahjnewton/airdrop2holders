@@ -5,10 +5,10 @@ Utility script for Solana to efficiently airdrop a specified SPL Token to holder
 
 ## Features
 - Automatically retrieve all **current** holders of NFTs from a Candy Machine V1 **or** V2 collection.
-- Save on time and unnecessary gas fees by skipping transfers to the sender account and bundling transfers to holders who own multiple NFTs in the collection.
-- Specify starting holder in case airdrop fails midway or sender account runs out of funds during airdrop.
+- Save on time and unnecessary gas fees by skipping transfers to the sender wallet and bundling transfers to holders who own multiple NFTs in the collection.
+- Specify starting holder in case airdrop fails midway or sender wallet runs out of funds during airdrop.
 - Automatically retry failed transactions (no more monitoring airdrops for errors).
-- Blacklist accounts to prevent unwanted airdrops
+- Blacklist wallets to prevent unwanted airdrops
 
 ## Requirements
 ### [Python3](https://www.python.org/downloads/)
@@ -23,7 +23,7 @@ sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 cargo install metaboss
 ```
 ## Usage
-**Ensure your Solana CLI config file is setup accordingly to the correct [sending account keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
+**Ensure your Solana CLI config file is setup accordingly to the correct [sending wallet keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
 
 ```
 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] [-b BLACKLIST] [-f] candymachineid tokenamount tokenaddress
@@ -47,7 +47,7 @@ Optional arguments:
 
 ### Example of list or blacklist JSON files
 ```
-["account1", "account2", "account3"]
+["wallet1", "wallet2", "wallet3"]
 ```
 `Saved as filename.json`
 
