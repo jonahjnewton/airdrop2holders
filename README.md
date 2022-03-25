@@ -42,6 +42,6 @@ Optional arguments:
 -f, --force FORCE     WARNING: SCRIPT WILL RUN WITHOUT SAFETY INPUTS. Will automatically refresh holders if no list is provided and retry failed transactions until they are successful.
 ```
 
-**If this project helped you at all, please consider donating to support the development and maintenance of future utilities!**
+**If this script helped you at all, please consider donating to support the development and maintenance of future utilities!**
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=KVTJPB8Z4DA8G)
