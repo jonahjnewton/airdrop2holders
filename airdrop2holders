@@ -67,20 +67,23 @@ def main(argv):
                 try:
                     blacklist = open(parsed_args.blacklist, "r").read()
                 except FileNotFoundError:
-                    while True:
-                        try:
-                            blacklist_input = input("Could not get blacklist. Would you like to continue without blacklist? Y/N\n")
-                            if blacklist_input == "Y":
-                                blacklist = ""
-                                break
-                            elif blacklist_input == "N":
-                                sys.exit("Airdrop cancelled")
-                            else:
-                                raise ValueError
+                    if not parsed_args.force:
+                        while True:
+                            try:
+                                blacklist_input = input("Could not get blacklist. Would you like to continue without blacklist? Y/N\n")
+                                if blacklist_input == "Y":
+                                    blacklist = ""
+                                    break
+                                elif blacklist_input == "N":
+                                    sys.exit("Airdrop cancelled")
+                                else:
+                                    raise ValueError
 
-                        except ValueError:
-                            print("Invalid input, please input Y/N")
-                            continue
+                            except ValueError:
+                                print("Invalid input, please input Y/N")
+                                continue
+                    else:
+                        sys.exit("Blacklist not found. Cancelling airdrop.")
 
             if(parsed_args.list):
                 for holder in holders_original:
