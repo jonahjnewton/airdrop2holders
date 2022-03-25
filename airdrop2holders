@@ -113,9 +113,9 @@ def main(argv):
                             print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " holders of " + str(sum(holders.values())) + " NFTs, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
                     else:
                         if not parsed_args.force:
-                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " accounts, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens. Do you want to continue? Y/N\n")
+                            send_confirm = input("You are about to send " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " wallets, for a total of " + str(token_amount * (sum(holders.values()))) + " tokens. Do you want to continue? Y/N\n")
                         else:
-                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " accounts for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
+                            print("Sending " + str(token_amount) + " tokens of type " + token_address + " to " + str(len(holders)) + " wallets for a total of " + str(token_amount * (sum(holders.values()))) + " tokens.\n")
 
                     if send_confirm == "Y" or (send_confirm == None and parsed_args.force):
                         holder_count = start_at_holder
