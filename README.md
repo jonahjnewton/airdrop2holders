@@ -8,6 +8,7 @@ Utility script for Solana to efficiently airdrop a specified SPL Token to holder
 - Save on time and unnecessary gas fees by skipping transfers to the sender account and bundling transfers to holders who own multiple NFTs in the collection.
 - Specify starting holder in case airdrop fails midway or sender account runs out of funds during airdrop.
 - Automatically retry failed transactions (no more monitoring airdrops for errors).
+- Blacklist accounts to prevent unwanted airdrops
 
 ## Requirements
 ### [Python3](https://www.python.org/downloads/)
