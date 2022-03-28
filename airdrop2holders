@@ -180,7 +180,7 @@ def main(argv):
                                         print("\n" + exc.args[0] + "\n")
                                         holder_count = holder_count + 1
                                         sent = True 
-                                    elif "unable to confirm transaction.":
+                                    elif "unable to confirm transaction." in exc.args[0]:
                                         print("\n" + "Continuing to next transaction." + "\n")
                                         holder_count = holder_count + 1
                                         sent = True
