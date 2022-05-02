@@ -20,7 +20,7 @@ sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 ### [Metaboss](https://github.com/samuelvanderwaal/metaboss)
 #### Installation
 ```
-cargo install metaboss
+cargo install metaboss --locked
 ```
 ## Usage
 **Ensure your Solana CLI config file is setup accordingly to the correct [sending wallet keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
