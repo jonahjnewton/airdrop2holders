@@ -201,9 +201,9 @@ def main(argv):
 
 def get_holders(candy_machine_id, v2):
     if v2:
-        holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--creator", candy_machine_id, "--v2"])
+        holders = subprocess.Popen(["metaboss", "-T", "180", "snapshot", "holders", "--creator", candy_machine_id, "--v2"])
     else:
-        holders = subprocess.Popen(["metaboss", "-t", "180", "snapshot", "holders", "--creator", candy_machine_id])
+        holders = subprocess.Popen(["metaboss", "-T", "180", "snapshot", "holders", "--creator", candy_machine_id])
     holders.wait()
 
 if __name__ == "__main__":
