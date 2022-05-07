@@ -57,6 +57,7 @@ def main(argv):
     try:
         with open(send_to, 'r+') as f:
             holders_original = json.load(f)
+            holders_original.sort(key = lambda x:x["owner_wallet"])
             holders = {}
 
             if len(holders_original) == 0:
@@ -159,7 +160,7 @@ def main(argv):
                                                 holder_count = holder_count + 1
                                                 break
                                             elif skip == "Cancel":
-                                                sys.exit("\nAirdrop cancelled at holder " + str(holder_count+1) + ". To retry this airdrop from holder " + str(holder_count+1) + ", rerun the command with the option '-s " + str(holder_count+1) + "' without refreshing the holders cache.\n")
+                                                sys.exit("\nAirdrop cancelled at holder " + str(holder_count+1) + ". To retry this airdrop from holder " + str(holder_count+1) + ", rerun the command with the option '-s " + str(holder_count+1) + "' without refreshing the holders cache (don't use --force).\n")
                                             elif skip == "Retry":
                                                 attempt_count = 0
                                                 break
@@ -173,7 +174,7 @@ def main(argv):
                                     
                                 except ValueError as exc:
                                     if "insufficient funds" in exc.args[0]:
-                                        sys.exit("\nWallet ran out of funds at holder " + str(holder_count + 1) + ". Fund sender wallet and retry from holder " + str(holder_count + 1) + " by rerunning the command with the option '-s " + str(holder_count + 1) + "' without refreshing the holders cache.\n")
+                                        sys.exit("\nWallet ran out of funds at holder " + str(holder_count + 1) + ". Fund sender wallet and retry from holder " + str(holder_count + 1) + " by rerunning the command with the option '-s " + str(holder_count + 1) + "' without refreshing the holders cache (don't use --force).\n")
                                     elif "Account could not be parsed as token account:" in exc.args[0]:
                                         sys.exit("\nAccount could not be parsed as token account for token " + token_address + "\n")
                                     elif "Sender is recipient, skipping." in exc.args[0]:
