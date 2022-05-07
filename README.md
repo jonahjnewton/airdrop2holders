@@ -20,13 +20,13 @@ sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 ### [Metaboss](https://github.com/samuelvanderwaal/metaboss)
 #### Installation
 ```
-cargo install metaboss
+cargo install metaboss --locked
 ```
 ## Usage
 **Ensure your Solana CLI config file is setup accordingly to the correct [sending wallet keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
 
 ```
-airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] [-b BLACKLIST] [-f] candymachineid tokenamount tokenaddress
+python3 airdrop2holders [-h] [-s STARTATHOLDER] [--v2] [-l LIST] [-b BLACKLIST] [-f] candymachineid tokenamount tokenaddress
 ```
 ```
 Required arguments:
@@ -49,7 +49,7 @@ Optional arguments:
 ```
 ["wallet1", "wallet2", "wallet3"]
 ```
-`Saved as filename.json`
+**Save with .json extension**
 
 ---
 **If this script helped you at all, please consider donating to support the development and maintenance of future utilities!**
