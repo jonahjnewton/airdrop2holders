@@ -10,7 +10,7 @@ Utility script for Solana to efficiently airdrop a specified SPL Token to holder
 - Automatically retry failed transactions (no more monitoring airdrops for errors).
 - Blacklist wallets to prevent unwanted airdrops
 
-## Requirements
+## Dependencies
 ### [Python3](https://www.python.org/downloads/)
 ### [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
 #### Installation
