@@ -51,6 +51,11 @@ Optional arguments:
 ```
 **Save with .json extension**
 
+## Contact
+*Twitter:* [@jjonahlowercase](https://twitter.com/jjonahlowercase)
+*Email:* [jonah@jonahnewton.com.au](jonah@jonahnewton.com.au)
+*Discord:* jjonahlowercase#4804
+
 ---
 **If this script helped you at all, please consider donating to support the development and maintenance of future utilities!**
 
