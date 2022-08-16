@@ -6,6 +6,7 @@ Utility script for Solana to efficiently airdrop a specified SPL Token to holder
 ## Features
 - Automatically retrieve all **current** holders of NFTs from a Candy Machine V1 **or** V2 collection.
 - Save on time and unnecessary gas fees by skipping transfers to the sender wallet and bundling transfers to holders who own multiple NFTs in the collection.
+- Specify a list of wallets to airdrop to users other than a Metaplex collection
 - Specify starting holder in case airdrop fails midway or sender wallet runs out of funds during airdrop.
 - Automatically retry failed transactions (no more monitoring airdrops for errors).
 - Blacklist wallets to prevent unwanted airdrops
