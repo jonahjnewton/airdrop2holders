@@ -53,7 +53,7 @@ Optional arguments:
 **Save with .json extension**
 
 ## Contact
-**Twitter:** [@jjonahlowercase](https://twitter.com/jjonahlowercase)
+**Twitter:** [@jonahjnewton](https://twitter.com/jonahjnewton)
 
 **Email:** [jonah@jonahnewton.com.au](jonah@jonahnewton.com.au)
 
