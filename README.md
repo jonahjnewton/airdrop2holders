@@ -1,10 +1,10 @@
+[![Python 3](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/)
+[![Solana CLI](https://img.shields.io/badge/solana-1.14-blue.svg)](https://docs.solana.com/cli/install-solana-cli-tools)
+[![Metaboss](https://img.shields.io/badge/metaboss-0.6.1-blue.svg)](https://github.com/samuelvanderwaal/metaboss)
 # airdrop2holders
 Utility script for Solana to efficiently airdrop a specified SPL Token to holders of a Candy Machine collection.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=KVTJPB8Z4DA8G)
-[![Python 3](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/)
-[![Solana CLI](https://img.shields.io/badge/solana-1.14-blue.svg)](https://docs.solana.com/cli/install-solana-cli-tools)
-[![Metaboss](https://img.shields.io/badge/metaboss-0.6.1-blue.svg)](https://github.com/samuelvanderwaal/metaboss)
 
 ## Features
 - Automatically retrieve all **current** holders of NFTs from a Candy Machine V1 **or** V2 collection.
