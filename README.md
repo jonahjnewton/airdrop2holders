@@ -15,17 +15,9 @@ Utility script for Solana to efficiently airdrop a specified SPL Token to holder
 - Blacklist wallets to prevent unwanted airdrops
 
 ## Dependencies
-### [Python3](https://www.python.org/downloads/)
-### [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
-#### Installation
-```
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-```
-### [Metaboss](https://github.com/samuelvanderwaal/metaboss)
-#### Installation
-```
-cargo install metaboss --locked
-```
+[![Python 3](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/)
+[![Solana CLI](https://img.shields.io/badge/solana-1.14-blue.svg)](https://docs.solana.com/cli/install-solana-cli-tools)
+[![Metaboss](https://img.shields.io/badge/metaboss-0.6.1-blue.svg)](https://github.com/samuelvanderwaal/metaboss)
 ## Usage
 **Ensure your Solana CLI config file is setup accordingly to the correct [sending wallet keypair](https://docs.solana.com/cli/transfer-tokens) and [environment](https://docs.solana.com/cli/choose-a-cluster) before continuing.**
 
